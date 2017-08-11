@@ -1,115 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.skin.info.service"
-	   name="Skin Info Service"
-	   version="2.0.0~beta10"
-	   provider-name="MikeSiLVO">
+<addon id="script.skin.info.service" name="Skin Info Service" version="1.0.2" provider-name="phil65">
 	<requires>
-		<import addon="xbmc.python" version="3.0.1" />
-		<import addon="xbmc.json" version="12.0.0" />
-		<import addon="script.module.pil" version="1.1.7" />
-		<import addon="script.module.requests" version="2.31.0" />
+		<import addon="xbmc.python" version="2.1.0"/>
+		<import addon="script.module.simplejson" version="2.0.10"/>
 	</requires>
-	<extension point="xbmc.python.pluginsource" library="plugin.py">
-		<provides>video</provides>
-	</extension>
-	<extension point="xbmc.python.library" library="script.py" />
-	<extension point="kodi.context.item">
-		<menu id="kodi.core.main">
-			<item library="context.py">
-				<label>$ADDON[script.skin.info.service 32102]</label>
-				<visible>!String.IsEmpty(ListItem.DBID) + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,episode) | String.IsEqual(ListItem.DBType,season) | String.IsEqual(ListItem.DBType,set)]</visible>
-			</item>
-		</menu>
-	</extension>
+	<extension point="xbmc.python.library"          library="default.py" />
+    <extension point="xbmc.python.script"           library="default.py">
+        <provides>executable</provides>
+    </extension>
 	<extension point="xbmc.addon.metadata">
-		<summary lang="en_GB">Provides rich media info and artwork to skins.</summary>
-		<description lang="en_GB">Skin Info Service provides additional properties such as ratings, artwork, and stream details for movies, sets, artists, and albums. Includes a gif poster scanner tool to automatically find and add animated gif posters to your library.
-		</description>
+		<language/>
+		<summary lang="en">Script used by skins to show extended media info.</summary>
+		<description lang="en">This script fetches extended information for several media types (artists, albums, movie sets etc.). Needs skin support.</description>
 		<platform>all</platform>
-		<license>GPL-3.0-only</license>
-		<source>https://github.com/MikeSiLVO/script.skin.info.service</source>
-		<assets>
-			<icon>icon.png</icon>
-			<fanart>fanart.jpg</fanart>
-		</assets>
-		<news>
-2.0.0~beta10
-- Updated Fanart.tv API to v3.2 with built-in project key
-- Moved Fanart.tv personal key to Advanced settings (matches TMDB pattern)
-- API keys now save immediately without requiring dialog confirmation
-- Added progress dialog to Download Artwork context menu action
-- Requires Kodi 21+ (xbmc.python 3.0.1)
-
-2.0.0~beta9
-- Fixed episode artwork download failing due to duplicate JSON-RPC property
-
-2.0.0~beta8
-- Added Download Artwork context menu action for single items
-- TV show download now includes all seasons and episodes
-- Fixed season artwork path building
-- Fixed bulk download not including episodes in tvshows scope
-- Fixed inherited artwork prefixes (tvshow.*, season.*) being downloaded
-- Fixed online service cache causing property flicker
-- Fixed slideshow timing bug (sqlite3.Row compatibility)
-- Fixed blur retry logging and stinger exception logging
-- Fixed Python 3.8 compatibility issues
-- Fixed editor save when value unchanged
-- Fixed artwork auto download property fetching
-- Various service and artwork scanner cleanups
-
-2.0.0~beta7
-- Fixed metadata editor for TV shows (removed invalid 'status' field)
-- Fixed artwork downloader downloading tvshow/season art for each episode
-- Fixed season artwork not being downloaded (now included with tvshow downloads)
-- Fixed artwork paths for tvshows/seasons without trailing slash
-- Fixed metadata editor Cancel button looping instead of closing
-
-2.0.0~beta6
-- Added online metadata language setting for TMDb localization
-- Reworked settings with Language category (metadata + artwork)
-- Added auto-download option after Manage Artwork selection
-- Fixed metadata editor year field (now updates premiered date)
-- Fixed metadata editor menu refresh after field edits
-- Replaced some addon strings with Kodi strings
-- Removed duplicate and unused strings from strings.po
-- Added translator comments to ambiguous strings
-- Fixed blur failing on images with alpha channel (LA/PA modes)
-
-2.0.0~beta5
-- Changed addon type to plugin for visibility in My Add-ons
-- Added plugin root menu with Tools, Search, and Widgets
-- Added seasonal submenu with all season options
-- Added setContent for proper content type in widgets
-- Added mpaa/studio infolabels to next_up widget
-- Added TotalSeasons property to tvshow widgets
-- Fixed halloween tag 'witch' to 'witchcraft' to avoid false positives
-- Added halloween tags: slasher, haunted, ghost, supernatural, demon, demonic possession, gore, occult
-
-2.0.0~beta4
-- Added incremental ratings sync for faster auto-updates
-- Added TV show context menu now updates all episodes
-- Added art types settings as individual toggles
-
-2.0.0~beta3
-- Added stinger (mid/post-credits scene) notifications
-- Added custom stinger icon
-- Added skin override support for stinger messages and display
-- Added stinger documentation
-
-2.0.0~beta2
-- Fixed property prefix duplication issue
-- Documentation fixes
-
-2.0.0~beta1
-- Complete rewrite
-- Added online properties from TMDb, OMDb, MDBList, Trakt
-- Added multi-source ratings (IMDb, RT, Metacritic, TMDb, Trakt, etc.)
-- Added plugin paths for widgets, cast, person info, stats
-- Added artwork review tool
-- Added metadata editor
-- Added blur, color picker, slideshow tools
-- Added GIF scanner
-- Added context menu integration
-		</news>
+		<license>GNU GENERAL PUBLIC LICENSE Version 2, June 1991</license>
+		<forum />
+		<source />
+		<email />
+		<news>Kodi v18 updates</news>
 	</extension>
 </addon>
