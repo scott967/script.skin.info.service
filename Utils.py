@@ -210,7 +210,8 @@ def set_movie_properties(json_response):
             country += [c for c in item["country"] if c and c not in country]
         if item.get("studio"):
             studio += [s for s in item["studio"] if s and s not in studio]
-        years.append(str(item['year']))
+        if not (str(item['year']) in years):
+            years.append(str(item['year']))
     HOME.setProperty('SkinInfo.Set.Movies.Plot', plot)
     HOME.setProperty('SkinInfo.Set.Movies.List', title_header + title_list)
     if json_response['result']['setdetails']['limits']['total'] > 1:

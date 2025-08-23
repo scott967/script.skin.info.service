@@ -139,15 +139,16 @@ class Daemon:
         if xbmc.getCondVisibility("!ListItem.IsParentFolder"):
             count = 1
             path = xbmc.getInfoLabel("ListItem.FolderPath")
-            json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s", "media": "video", "properties": ["art"]}, "id": 1}' % (path))
-            if ("result" in json_response) and ("files" in json_response["result"]):
-                for movie in json_response["result"]["files"]:
-                    HOME.setProperty('SkinInfo.Detail.Movie.%i.Path' % (count), movie["file"])
-                    HOME.setProperty('SkinInfo.Detail.Movie.%i.Art(fanart)' % (count), movie["art"].get('fanart', ''))
-                    HOME.setProperty('SkinInfo.Detail.Movie.%i.Art(poster)' % (count), movie["art"].get('poster', ''))
-                    count += 1
-                    if count > 19:
-                        break
+            if path and not (path.startswith("plugin")):
+                json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s", "media": "video", "properties": ["art"]}, "id": 1}' % (path))
+                if ("result" in json_response) and ("files" in json_response["result"]):
+                    for movie in json_response["result"]["files"]:
+                        HOME.setProperty('SkinInfo.Detail.Movie.%i.Path' % (count), movie["file"])
+                        HOME.setProperty('SkinInfo.Detail.Movie.%i.Art(fanart)' % (count), movie["art"].get('fanart', ''))
+                        HOME.setProperty('SkinInfo.Detail.Movie.%i.Art(poster)' % (count), movie["art"].get('poster', ''))
+                        count += 1
+                        if count > 19:
+                            break
 
     def setMusicDetailsforCategory(self):
         if xbmc.getCondVisibility("!ListItem.IsParentFolder"):
