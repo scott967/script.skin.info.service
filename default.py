@@ -37,6 +37,7 @@ class Daemon:
                     window = "musicosd"
                 else:
                     seconds = ""
+                    window = ""
                 if seconds and seconds != "0" and xbmc.getCondVisibility("System.IdleTime(%s)" % seconds) and xbmc.getCondVisibility("Window.IsActive(%s)" % window):
                     xbmc.executebuiltin("Dialog.Close(%s)" % window)
 
@@ -81,7 +82,8 @@ class Daemon:
                     if (self.selecteditem != "") and xbmc.getCondVisibility("!ListItem.IsParentFolder"):
                         self.setMusicDetailsforCategory()
             elif xbmc.getCondVisibility('Window.IsActive(screensaver)'):
-                xbmc.Monitor().waitForAbort(1)
+                if self.ssis_monitor.waitForAbort(1):
+                    return
             else:
                 self.previousitem = ""
                 self.selecteditem = ""
@@ -92,50 +94,59 @@ class Daemon:
                 clear_properties()
                 self._stop = True
             xbmc.sleep(100)
+        log("shutdown backend")
 
     def _set_artist_details(self, dbid):
-        json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "AudioLibrary.GetAlbums", "params": {"properties": ["title", "year", "albumlabel", "playcount", "art"], "sort": { "method": "label" }, "filter": {"artistid": %s} }, "id": 1}' % dbid)
-        clear_properties()
-        if ("result" in json_response) and ('albums' in json_response['result']):
-            set_artist_properties(json_response)
+        if not self.ssis_monitor.abortRequested():
+            json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "AudioLibrary.GetAlbums", "params": {"properties": ["title", "year", "albumlabel", "playcount", "art"], "sort": { "method": "label" }, "filter": {"artistid": %s} }, "id": 1}' % dbid)
+            clear_properties()
+            if ("result" in json_response) and ('albums' in json_response['result']):
+                set_artist_properties(json_response)
 
     def _set_movie_details(self, dbid):
-        json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovieDetails", "params": {"properties": ["streamdetails","set","setid","cast"], "movieid":%s }, "id": 1}' % dbid)
-        clear_properties()
-        if ("result" in json_response) and ('moviedetails' in json_response['result']):
-            self._set_properties(json_response['result']['moviedetails'])
+        if not self.ssis_monitor.abortRequested():
+            json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovieDetails", "params": {"properties": ["streamdetails","set","setid","cast"], "movieid":%s }, "id": 1}' % dbid)
+            clear_properties()
+            if ("result" in json_response) and ('moviedetails' in json_response['result']):
+                self._set_properties(json_response['result']['moviedetails'])
 
     def _set_episode_details(self, dbid):
-        json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodeDetails", "params": {"properties": ["streamdetails","tvshowid","season"], "episodeid":%s }, "id": 1}' % dbid)
-        clear_properties()
-        if ('result' in json_response) and ('episodedetails' in json_response['result']):
-            self._set_properties(json_response['result']['episodedetails'])
-            seasonnumber = json_response['result']['episodedetails']['season']
-            tvshowid = json_response['result']['episodedetails']['tvshowid']
-            json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetSeasons", "params": {"properties": ["thumbnail"], "tvshowid":%s }, "id": 1}' % tvshowid)
-            for season in json_response["result"]["seasons"]:
-                if season["label"].split(" ")[-1] == str(seasonnumber):
-                    HOME.setProperty('SkinInfo.SeasonPoster', season["thumbnail"])
+        if not self.ssis_monitor.abortRequested():
+            json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodeDetails", "params": {"properties": ["streamdetails","tvshowid","season"], "episodeid":%s }, "id": 1}' % dbid)
+            clear_properties()
+            if ('result' in json_response) and ('episodedetails' in json_response['result']):
+                self._set_properties(json_response['result']['episodedetails'])
+                seasonnumber = json_response['result']['episodedetails']['season']
+                tvshowid = json_response['result']['episodedetails']['tvshowid']
+                json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetSeasons", "params": {"properties": ["thumbnail"], "tvshowid":%s }, "id": 1}' % tvshowid)
+                for season in json_response["result"]["seasons"]:
+                    if season["label"].split(" ")[-1] == str(seasonnumber):
+                        HOME.setProperty('SkinInfo.SeasonPoster', season["thumbnail"])
 
     def _set_musicvideo_details(self, dbid):
-        json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMusicVideoDetails", "params": {"properties": ["streamdetails"], "musicvideoid":%s }, "id": 1}' % dbid)
-        clear_properties()
-        if ("result" in json_response) and ('musicvideodetails' in json_response['result']):
-            self._set_properties(json_response['result']['musicvideodetails'])
+        if not self.ssis_monitor.abortRequested():
+            json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMusicVideoDetails", "params": {"properties": ["streamdetails"], "musicvideoid":%s }, "id": 1}' % dbid)
+            clear_properties()
+            if ("result" in json_response) and ('musicvideodetails' in json_response['result']):
+                self._set_properties(json_response['result']['musicvideodetails'])
 
     def _set_album_details(self, dbid):
-        json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "AudioLibrary.GetSongs", "params": {"properties": ["title", "track", "duration", "file", "lastplayed", "disc"], "sort": { "method": "label" }, "filter": {"albumid": %s} }, "id": 1}' % dbid)
-        clear_properties()
-        if ("result" in json_response) and ('songs' in json_response['result']):
-            set_album_properties(json_response)
+        if not self.ssis_monitor.abortRequested():
+            json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "AudioLibrary.GetSongs", "params": {"properties": ["title", "track", "duration", "file", "lastplayed", "disc"], "sort": { "method": "label" }, "filter": {"albumid": %s} }, "id": 1}' % dbid)
+            clear_properties()
+            if ("result" in json_response) and ('songs' in json_response['result']):
+                set_album_properties(json_response)
 
     def _set_movieset_details(self, dbid):
-        json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovieSetDetails", "params": {"setid": %s, "properties": [ "thumbnail" ], "movies": { "properties":  [ "rating", "art", "file", "year", "director", "writer", "genre", "thumbnail", "runtime", "studio", "mpaa", "plotoutline", "plot", "country", "streamdetails"], "sort": { "order": "ascending",  "method": "year" }} },"id": 1 }' % dbid)
-        clear_properties()
-        if ("result" in json_response) and ('setdetails' in json_response['result']):
-            set_movie_properties(json_response)
+        if not self.ssis_monitor.abortRequested():
+            json_response = Get_JSON_response('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovieSetDetails", "params": {"setid": %s, "properties": [ "thumbnail" ], "movies": { "properties":  [ "rating", "art", "file", "year", "director", "writer", "genre", "thumbnail", "runtime", "studio", "mpaa", "plotoutline", "plot", "country", "streamdetails"], "sort": { "order": "ascending",  "method": "year" }} },"id": 1 }' % dbid)
+            clear_properties()
+            if ("result" in json_response) and ('setdetails' in json_response['result']):
+                set_movie_properties(json_response)
 
     def setMovieDetailsforCategory(self):
+        if self.ssis_monitor.abortRequested():
+            return
         if xbmc.getCondVisibility("!ListItem.IsParentFolder"):
             count = 1
             path = xbmc.getInfoLabel("ListItem.FolderPath")
@@ -151,6 +162,8 @@ class Daemon:
                             break
 
     def setMusicDetailsforCategory(self):
+        if self.ssis_monitor.abortRequested():
+            return
         if xbmc.getCondVisibility("!ListItem.IsParentFolder"):
             count = 1
             path = xbmc.getInfoLabel("ListItem.FolderPath")
